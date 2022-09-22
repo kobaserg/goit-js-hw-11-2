@@ -16,19 +16,16 @@ const lightbox = new SimpleLightbox('.gallery a', {
 const axios = require('axios');
 const form = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
-const btnLoadMore = document.querySelector('.load-more');
 
 let fieldForSearchPhoto = '';
 clearGallery();
-btnLoadMore.style.visibility = 'hidden';
 let page = 1;
 let perPage = 40;
 let totalHits = 0;
-let currentHits = perPage;
+let currentHits = 0;
 
 form.addEventListener('input', onInputForm);
 form.addEventListener('submit', onSubmitForm);
-btnLoadMore.addEventListener('click', onLoadMore);
 
 function onInputForm(event) {
   fieldForSearchPhoto = event.target.value;
@@ -36,30 +33,25 @@ function onInputForm(event) {
 
 function onSubmitForm(event) {
   event.preventDefault();
-  btnLoadMore.style.visibility = 'hidden';
+  clearGallery();
   page = 1;
   totalHits = 0;
-  currentHits = perPage;
-  clearGallery();
+  // currentHits = perPage;
   fieldForSearchPhoto = fieldForSearchPhoto.trim();
+  observer.observe(sentinel);
   if (fieldForSearchPhoto !== '') {
     fetchPhoto(fieldForSearchPhoto, page, perPage).then(response =>
       renderPhotoGallery(response)
     );
+    page += 1;
+    currentHits += perPage;
   } else {
     clearGallery();
     Notiflix.Notify.warning('Enter a filter to search for an image');
+    page = 1;
+    currentHits = 0;
+    return;
   }
-}
-
-function onLoadMore(event) {
-  event.preventDefault();
-  currentHits += perPage;
-  page += 1;
-  btnLoadMore.style.visibility = 'hidden';
-  fetchPhoto(fieldForSearchPhoto, page, perPage).then(response =>
-    renderPhotoGallery(response)
-  );
 }
 
 function renderPhotoGallery(photos) {
@@ -72,7 +64,6 @@ function renderPhotoGallery(photos) {
       'Sorry, there are no images matching your search query. Please try again.'
     );
     fieldForSearchPhoto = '';
-    btnLoadMore.style.visibility = 'hidden';
     form.reset();
     return;
   } else {
@@ -91,23 +82,11 @@ function renderPhotoGallery(photos) {
 
   makeMarcup(arrayPhoto);
 
-  btnLoadMore.style.visibility = 'visible';
-  // установление scroll smooth со скроллом экрана вверх после пролистывания первой страницы
-  if (page > 1) {
-    const { height: cardHeight } =
-      gallery.firstElementChild.getBoundingClientRect();
-    window.scrollBy({
-      top: cardHeight * 2,
-      behavior: 'smooth',
-    });
-  }
-
   // проверка и уведомление на окончание просмотра доступных изображений по фильтру с деактивацией кнопки Load More
   if (currentHits >= totalHits) {
     Notiflix.Notify.warning(
       `We're sorry, but you've reached the end of search results.`
     );
-    btnLoadMore.style.visibility = 'hidden';
     return;
   }
 }
@@ -144,3 +123,28 @@ function makeMarcup(arrayPhoto) {
 function clearGallery() {
   gallery.innerHTML = '';
 }
+
+// бесконечный скролл
+const sentinel = document.querySelector('#scroll-area');
+
+const options = {
+  rootMargin: '200px',
+  // threshold: 1.0,
+};
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      if (page > 1) {
+        fetchPhoto(fieldForSearchPhoto, page, perPage).then(response =>
+          renderPhotoGallery(response)
+        );
+        page += 1;
+        currentHits += perPage;
+        if (currentHits >= totalHits) {
+          observer.disconnect(sentinel);
+        }
+      }
+    }
+  });
+}, options);
