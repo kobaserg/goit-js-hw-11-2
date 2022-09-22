@@ -1,21 +1,21 @@
 {
-  "name": "goit-js-hw-11",
+  "name": "goit-js-hw-11-2",
   "version": "2.0.0",
   "description": "",
-  "homepage": "https://kobaserg.github.io/goit-js-hw-11",
+  "homepage": "https://kobaserg.github.io/goit-js-hw-11-2",
   "scripts": {
     "start": "parcel src/*.html",
-    "build": "parcel build src/*.html --public-url /goit-js-hw-11/"
+    "build": "parcel build src/*.html --public-url /goit-js-hw-11-2/"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kobaserg/goit-js-hw-11.git"
+    "url": "git+https://github.com/kobaserg/goit-js-hw-11-2.git"
   },
   "keywords": [],
   "author": "Serhiy Koba <kobasts@gmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/kobaserg/goit-js-hw-11/issues"
+    "url": "https://github.com/kobaserg/goit-js-hw-11-2/issues"
   },
   "dependencies": {
     "axios": "^0.27.2",
